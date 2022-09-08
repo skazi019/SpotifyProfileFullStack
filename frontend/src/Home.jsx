@@ -6,17 +6,22 @@ export default function Home() {
     const [spotifyData, setSpotifyData] = useState({});
 
     useEffect(() => {
-        async function getCallbackParams() {
-            const currentURL = await new URLSearchParams(window.location.search);
+        function getCallbackParams() {
+            const currentURL = new URLSearchParams(window.location.search);
+            const code = currentURL.get('code');
+            const error = currentURL.get('error'); //=== null ? '' : currentURL.get('error');
 
-            fetch('http://127.0.0.1:8000/spotify_callback/', {
-                params: {
-                    'code': currentURL.get('code'),
-                    'error': currentURL.get('error'),
+            fetch(`http://127.0.0.1:8000/spotify_callback/?${new URLSearchParams({
+                code: code,
+                error: error,
+            })}`,
+                {
+                    method: 'POST'
                 }
-            }).then(function (response) {
-                console.log(response);
-                setSpotifyData(response);
+            ).then(async function (response) {
+                const res = await response.json();
+                console.log(res)
+                setSpotifyData(res);
             })
         };
 
@@ -27,7 +32,11 @@ export default function Home() {
 
     return (
         <>
-            {spotifyData ? <Navbar /> : <h1>Data not found</h1>
+            {
+                "status" in spotifyData ?
+                    (spotifyData.status === 200 ? <Navbar /> : <h1 className="h-screen w-screen flex justify-center items-center text-6xl">Loading</h1>)
+                    :
+                    <h1 className="h-screen w-screen flex justify-center items-center text-6xl">Data not found</h1>
             }
         </>
     )
