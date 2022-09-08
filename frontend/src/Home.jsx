@@ -4,6 +4,8 @@ import Navbar from "./Navbar"
 export default function Home() {
 
     const [spotifyData, setSpotifyData] = useState({});
+    const [dataLoading, setDataLoading] = useState(true);
+    const [dataError, setDataError] = useState(false);
 
     useEffect(() => {
         function getCallbackParams() {
@@ -19,9 +21,13 @@ export default function Home() {
                     method: 'POST'
                 }
             ).then(async function (response) {
-                const res = await response.json();
-                console.log(res)
-                setSpotifyData(res);
+                const res = await response;
+                (res.status === 200) ? setDataLoading(false) : setDataError(true);
+                console.log(`Data Status: ${dataLoading}`)
+                const data = await res.json()
+                !("data" in data) ? setDataError(true) : setDataError(false);
+                console.log(data)
+                setSpotifyData(data);
             })
         };
 
@@ -33,10 +39,13 @@ export default function Home() {
     return (
         <>
             {
-                "status" in spotifyData ?
-                    (spotifyData.status === 200 ? <Navbar /> : <h1 className="h-screen w-screen flex justify-center items-center text-6xl">Loading</h1>)
-                    :
-                    <h1 className="h-screen w-screen flex justify-center items-center text-6xl">Data not found</h1>
+                !dataError ?
+                    (dataLoading ? <h1 className="h-screen w-screen flex justify-center items-center text-6xl">Loading</h1> : <Navbar />)
+                    : (<div className="h-screen w-screen flex flex-col justify-center items-center">
+                        <h1 className="text-6xl">Error in fetching data</h1>
+                        <p className="text-3xl">{spotifyData.error}</p>
+                    </div>)
+
             }
         </>
     )
