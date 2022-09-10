@@ -45,7 +45,9 @@ def spotify_callback(request):
     code = request.GET.get("code")
     error = request.GET.get("error")
 
-    if not error or not code or error == "access_denied":
+    print(f"Code received: {code}")
+
+    if not code or error == "access_denied":
         return Response(
             {"error": "access denied to user"}, status=status.HTTP_401_UNAUTHORIZED
         )

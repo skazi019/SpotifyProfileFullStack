@@ -1,4 +1,4 @@
-import Home from "./Home";
+import Transition from "./Transition";
 import Login from "./Login";
 
 export default function App() {
@@ -8,7 +8,7 @@ export default function App() {
   return (
     <div className="App">
       {
-        loginState ? <Home /> : <Login />
+        loginState ? <Transition /> : <Login />
       }
     </div>
   );
